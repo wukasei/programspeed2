@@ -1,0 +1,174 @@
+#include <iostream>
+#include <chrono>
+#include <numeric>
+#include <vector>
+#include <memory>
+#include <string>
+#include <iomanip>
+
+#include <odb/mysql/database.hxx>
+#include <odb/transaction.hxx>
+#include <odb/result.hxx>
+#include <odb/session.hxx>
+
+#include "client.hxx"
+#include "client-odb.hxx"
+#include "vehicle.hxx"
+#include "vehicle-odb.hxx"
+#include "driver.hxx"
+#include "driver-odb.hxx"
+#include "order.hxx"
+#include "order-odb.hxx"
+
+using namespace std;
+using namespace std::chrono;
+
+// --- Primary key traits ---
+template <typename T>
+struct TableTraits;
+
+template <>
+struct TableTraits<Client>
+{
+    using QueryType = odb::query<Client>;
+    static QueryType pk() { return QueryType::client_id > 0; }
+};
+
+template <>
+struct TableTraits<Vehicle>
+{
+    using QueryType = odb::query<Vehicle>;
+    static QueryType pk() { return QueryType::vehicle_id > 0; }
+};
+
+template <>
+struct TableTraits<Driver>
+{
+    using QueryType = odb::query<Driver>;
+    static QueryType pk() { return QueryType::driver_id > 0; }
+};
+
+template <>
+struct TableTraits<Order>
+{
+    using QueryType = odb::query<Order>;
+    static QueryType pk() { return QueryType::order_id > 0; }
+};
+
+std::shared_ptr<odb::mysql::database> connectDB()
+{
+    static std::shared_ptr<odb::mysql::database> db =
+        std::make_shared<odb::mysql::database>(
+            "speedorm", "123456",
+            "transport_company",
+            "localhost");
+
+    return db; // always same connection reused
+}
+
+// --- Template function to measure SELECT time ---
+template <typename T>
+double testOrmSelectTime(shared_ptr<odb::mysql::database> db, int limit)
+{
+    auto start = chrono::high_resolution_clock::now();
+
+    using Query = typename TableTraits<T>::QueryType;
+    typedef odb::result<T> Result;
+
+    odb::transaction t(db->begin());
+
+    // Build the LIMIT clause safely
+    std::string limitClause = "LIMIT " + std::to_string(limit);
+
+    // Append it to your base query
+    Result r(db->query<T>(TableTraits<T>::pk() + Query(limitClause)));
+
+    int rows = 0;
+    for (auto &obj : r)
+    {
+        // std::cout << "Order ID: " << obj.order_id_ << "\n";
+        if (obj.client_)
+        {
+            obj.client_.load(); // load lazy pointer
+            // std::cout << "    Client ID: " << obj.client_->client_id << "\n";
+        }
+
+        if (obj.driver_)
+        {
+            obj.driver_.load(); // load lazy pointer
+            // std::cout << "    Driver ID: " << obj.driver_->driver_id_ << "\n";
+        }
+
+        if (obj.vehicle_)
+        {
+            obj.vehicle_.load(); // load lazy pointer
+            // std::cout << "    Vehicle ID: " << obj.vehicle_->vehicle_id_ << "\n";
+        }
+
+        for (auto &log : obj.triplogs_)
+        {
+            log.load(); // load lazy pointers
+            // std::cout << "      TripLog ID: " << log->trip_id_ << "\n";
+        }
+
+        for (auto &log : obj.tripdetails_)
+        {
+            log.load(); // load lazy pointers
+            // std::cout << "      TripDetail ID: " << log->trip_id_ << "\n";
+        }
+
+        rows++;
+    }
+
+    t.commit();
+
+    auto end = chrono::high_resolution_clock::now();
+    double ms = chrono::duration<double, milli>(end - start).count();
+
+    cout << "SELECT " << typeid(T).name()
+         << " | LIMIT " << limit
+         << " | Time: " << ms << " ms (" << rows << " rows)\n";
+
+    return ms;
+}
+
+// --- Average SELECT across all tables ---
+void averageSelectAllModels(shared_ptr<odb::mysql::database> db, int limit, int repeats)
+{
+
+    if (repeats <= 0)
+    {
+        cerr << "Error: repeats must be > 0\n";
+        return;
+    }
+
+    struct Result
+    {
+        string table;
+        double avg;
+    };
+    vector<Result> results;
+
+    auto measure = [&](auto dummy, const string &name)
+    {
+        using T = decltype(dummy);
+        vector<double> times;
+        times.reserve(repeats);
+        for (int i = 0; i < repeats; ++i)
+            times.push_back(testOrmSelectTime<T>(db, limit));
+        double avg = accumulate(times.begin(), times.end(), 0.0) / times.size();
+        results.push_back({name, avg});
+    };
+
+    measure(Client{}, "Client");
+    measure(Vehicle{}, "Vehicle");
+    measure(Driver{}, "Driver");
+    measure(Order{}, "Order");
+    measure(TripLog{}, "TripLog");
+    measure(TripDetails{}, "TripDetails");
+
+    cout << "\n--- Summary SELECT ---\n";
+    for (const auto &r : results)
+        cout << left << setw(12) << r.table
+             << "| Average: " << r.avg << " ms\n";
+}

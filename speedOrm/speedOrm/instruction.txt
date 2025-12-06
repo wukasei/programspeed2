@@ -1,0 +1,6 @@
+odb --std c++11 -d mysql --generate-query client.hxx
+odb --std c++11 -d mysql --generate-query driver.hxx
+odb --std c++11 -d mysql --generate-query vehicle.hxx
+odb --std c++11 -d mysql --generate-query order.hxx
+odb --std c++11 -d mysql --generate-query tripdetails.hxx
+odb --std c++11 -d mysql --generate-query triplog.hxx

@@ -1,0 +1,22 @@
+
+**/.vs/
+**/node_modules/
+**/Debug/  # Ігнорує Debug, де б він не знаходився
+**/Release/ # Ігнорує Release, де б він не знаходився
+
+# Файли збірки та відладки
+*.obj
+*.exe
+*.dll
+*.pdb
+*.ilk
+*.aps
+*.ncb
+*.user
+*.bak
+*.log
+
+.DS_Store
+Thumbs.db
+*~
+npm-debug.log*

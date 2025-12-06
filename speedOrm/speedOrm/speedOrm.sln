@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "speedOrm", "speedOrm.vcxproj", "{AEAC532E-F94D-4DC1-A049-25C6D56425CA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AEAC532E-F94D-4DC1-A049-25C6D56425CA}.Debug|x64.ActiveCfg = Release|x64
+		{AEAC532E-F94D-4DC1-A049-25C6D56425CA}.Debug|x64.Build.0 = Release|x64
+		{AEAC532E-F94D-4DC1-A049-25C6D56425CA}.Debug|x86.ActiveCfg = Debug|Win32
+		{AEAC532E-F94D-4DC1-A049-25C6D56425CA}.Debug|x86.Build.0 = Debug|Win32
+		{AEAC532E-F94D-4DC1-A049-25C6D56425CA}.Release|x64.ActiveCfg = Release|x64
+		{AEAC532E-F94D-4DC1-A049-25C6D56425CA}.Release|x64.Build.0 = Release|x64
+		{AEAC532E-F94D-4DC1-A049-25C6D56425CA}.Release|x86.ActiveCfg = Release|Win32
+		{AEAC532E-F94D-4DC1-A049-25C6D56425CA}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A4D6E54C-C734-4DBC-99F4-EC6DD77EBF18}
+	EndGlobalSection
+EndGlobal
