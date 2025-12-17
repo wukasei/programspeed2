@@ -1,3 +1,0 @@
-C:\Users\Inna\Documents\workout2\kursach\programspeed2\speedRaw\mainn.cpp\x64\Release\libcrypto-3-x64.dll
-C:\Users\Inna\Documents\workout2\kursach\programspeed2\speedRaw\mainn.cpp\x64\Release\libssl-3-x64.dll
-C:\Users\Inna\Documents\workout2\kursach\programspeed2\speedRaw\mainn.cpp\mainn.cpp\x64\Release\mainn.cpp.vcxproj.Up2Date
